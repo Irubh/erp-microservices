@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from app.database.db import SessionLocal
 from app.models.purchase_orders_model import PurchaseOrder, PurchaseOrderItem
+import requests
 
 router = APIRouter()
 
@@ -68,6 +69,16 @@ def update_po_status(po_id: int, new_status: str, db: Session = Depends(get_db))
     
     po.status = new_status
     db.commit()
+    
+    requests.post(
+        "http://localhost:8004/notify",
+        json={
+            "type": "PO_STATUS_UPDATED",
+            "po_id": po_id,
+            "status": new_status,
+            "target_user": po.vendor_id
+        }
+    )
     
     # After committing the change, trigger the notification
     # You can send an HTTP POST request to your Node.js Notification Service here

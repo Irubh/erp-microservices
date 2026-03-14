@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
-import os
+from app.services.mongo_client import collection
 import google.generativeai as genai
+import os
 
 load_dotenv()
 
@@ -19,5 +20,14 @@ def generate_product_description(product_name: str):
     """
 
     response = model.generate_content(prompt)
+    description = response.text
+    
+    log = {
+        "product_name": product_name,
+        "description": description,
+        "prompt": prompt,
+        "response_raw": response.to_dict(), 
+    }
+    collection.insert_one(log)
 
-    return response.text
+    return description

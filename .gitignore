@@ -30,3 +30,6 @@ Thumbs.db
 # Mac files
 .AppleDouble
 .LSOverride
+
+#products env file
+backend/products/.env

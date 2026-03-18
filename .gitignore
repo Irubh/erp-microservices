@@ -1,35 +1,10 @@
-# Maven build folder
-target/
-
-# Maven wrapper jar
-.mvn/wrapper/maven-wrapper.jar
-
-# Logs
+**/.env
+**/venv/
+**/__pycache__/
+**/*.pyc
+**/node_modules/
+**/target/
+**/.mvn/
+*.class
+*.jar
 *.log
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE files
-.idea/
-*.iml
-*.iws
-*.ipr
-
-# VS Code
-.vscode/
-
-# Environment files
-.env
-
-# Temporary files
-*.tmp
-*.swp
-
-# Mac files
-.AppleDouble
-.LSOverride
-
-#products env file
-backend/products/.env

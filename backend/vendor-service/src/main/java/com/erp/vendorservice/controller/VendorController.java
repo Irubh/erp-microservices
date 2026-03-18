@@ -2,6 +2,7 @@ package com.erp.vendorservice.controller;
 
 import com.erp.vendorservice.entity.Vendor;
 import com.erp.vendorservice.service.VendorService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,19 @@ public class VendorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Vendor>> getAllVendors() {
+    public ResponseEntity<?> getAllVendors(HttpServletRequest request) {
+        String role     = (String) request.getAttribute("userRole");
+        Object vendorId = request.getAttribute("vendorId");
+
+        // Vendor → only their own record
+        if ("vendor".equals(role) && vendorId != null) {
+            Vendor vendor = vendorService.getVendorById(
+                Long.valueOf(vendorId.toString())
+            );
+            return ResponseEntity.ok(vendor);
+        }
+
+        // Employee → all vendors
         List<Vendor> vendors = vendorService.getAllVendors();
         return ResponseEntity.ok(vendors);
     }

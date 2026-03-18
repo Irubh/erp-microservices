@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — PO Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 40px;
+      width: 320px;
+      text-align: center;
+    }
+    h2 { margin: 0 0 6px; font-size: 20px; }
+    p  { color: #666; font-size: 13px; margin: 0 0 24px; }
+    .hint {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #999;
+      line-height: 1.7;
+    }
+    .error {
+      margin-top: 14px;
+      padding: 10px;
+      background: #fff0f0;
+      border: 1px solid #f5c6c6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #c00;
+      display: none;
+    }
+    .loading {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #666;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>📦 PO Management</h2>
+  <p>IV Innovations Pvt. Ltd.</p>
+
+  <div id="g_id_onload"
+       data-client_id="545439697456-upjv8jg8pf0ribtvkvt0q5tv1gqrmjrt.apps.googleusercontent.com"
+       data-callback="handleGoogleLogin"
+       data-auto_prompt="false">
+  </div>
+  <div class="g_id_signin"
+       data-type="standard"
+       data-size="large"
+       data-theme="outline"
+       data-text="sign_in_with"
+       data-shape="rectangular"
+       data-logo_alignment="left">
+  </div>
+
+  <div class="error"  id="error-box"></div>
+  <div class="loading" id="loading">Signing in...</div>
+
+  <div class="hint">
+    Employees: @iv-innovations.com<br/>
+    Vendors: use your registered email
+  </div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+  // Skip login if already logged in
+  const t = localStorage.getItem('po_jwt')
+  if (t) {
+    try {
+      const u = JSON.parse(atob(t.split('.')[1]))
+      if (u.exp * 1000 > Date.now()) {
+        window.location.href = u.role === 'employee'
+          ? 'dashboard/employee.html'
+          : 'dashboard/vendor.html'
+      }
+    } catch(e) {}
+  }
+
+  async function handleGoogleLogin(resp) {
+    document.getElementById('loading').style.display = 'block'
+    document.getElementById('error-box').style.display = 'none'
+
+    try {
+      const res = await fetch('http://localhost:8001/auth/google/callback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential: resp.credential })
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        showError(data.detail || 'Access denied. Contact admin.')
+        return
+      }
+
+      localStorage.setItem('po_jwt', data.access_token)
+      window.location.href = data.role === 'employee'
+        ? 'dashboard/employee.html'
+        : 'dashboard/vendor.html'
+
+    } catch(e) {
+      showError('Cannot reach server. Make sure all services are running.')
+    } finally {
+      document.getElementById('loading').style.display = 'none'
+    }
+  }
+
+  function showError(msg) {
+    const b = document.getElementById('error-box')
+    b.textContent = msg
+    b.style.display = 'block'
+  }
+</script>
+</body>
+</html>

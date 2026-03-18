@@ -23,7 +23,13 @@
 - `vendors` — id, name, contact, rating, email
 - `products` — id, name, sku, unit_price, stock_level
 - `purchase_orders` — id, reference_no, vendor_id (FK), total_amount, status
-- `purchase_order_items` — id, po_id (FK), product_id (FK), quantity, unit_price_at_purchase
+- `purchase_order_items` — id, po_id (FK), product_id (FK), quantity, unit_price_at_purchase. Junction table between POs and products. A single PO can have multiple products — this is a one-to-many relationship (one PO, many items). `unit_price_at_purchase` is stored separately from `products.unit_price` intentionally — this is a snapshot of the price when the order was made, so historical POs remain accurate even if product prices. change later.
+
+
+## Users
+Every user should be verified. So for the enterprise employee, anyone with @iv-innovations.com would be treated as enterprise employee and could enter as employee, others are not welcomed and for vendor, each vendor has unique email for identification. 
+
+Therefore, no separate user_role table needed.
 
 ## Business Logic
 - Total = subtotal × 1.05 (5% tax applied automatically)
